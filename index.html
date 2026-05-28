@@ -42,6 +42,7 @@
     overflow-x: hidden;
   }
 
+  /* Ambient background texture */
   body::before {
     content: '';
     position: fixed;
@@ -53,6 +54,7 @@
     z-index: 0;
   }
 
+  /* Grid paper overlay */
   body::after {
     content: '';
     position: fixed;
@@ -75,6 +77,7 @@
     gap: 1.5rem;
   }
 
+  /* ── HEADER ─────────────────────────────── */
   header {
     text-align: center;
     padding: 2.5rem 1rem 1rem;
@@ -133,6 +136,7 @@
     letter-spacing: 0.03em;
   }
 
+  /* ── CARD BASE ───────────────────────────── */
   .card {
     background: var(--navy-mid);
     border: 1px solid rgba(100,116,139,0.2);
@@ -150,6 +154,7 @@
     background: linear-gradient(90deg, transparent, rgba(254,240,138,0.3), transparent);
   }
 
+  /* ── INPUT SECTION ───────────────────────── */
   .input-label {
     font-family: var(--font-mono);
     font-size: 0.7rem;
@@ -257,6 +262,7 @@
     transform: none;
   }
 
+  /* ── SCANNING STATE ──────────────────────── */
   .scanning {
     display: none;
     align-items: center;
@@ -292,6 +298,7 @@
     letter-spacing: 0.04em;
   }
 
+  /* ── RESULT PANEL ────────────────────────── */
   .result-card {
     display: none;
     background: var(--paper);
@@ -308,6 +315,7 @@
     to   { opacity: 1; transform: translateY(0); }
   }
 
+  /* Lined paper lines */
   .result-card::after {
     content: '';
     position: absolute;
@@ -322,6 +330,7 @@
     z-index: 0;
   }
 
+  /* Red margin line */
   .result-card::before {
     content: '';
     position: absolute;
@@ -409,6 +418,7 @@
     border: 1px solid rgba(100,116,139,0.15);
   }
 
+  /* ── UNIT GUIDE ──────────────────────────── */
   .guide-title {
     font-family: var(--font-mono);
     font-size: 0.7rem;
@@ -479,6 +489,7 @@
   .rule-text .ok  { color: var(--green); font-weight: 600; }
   .rule-text .bad { color: var(--red);   font-weight: 600; text-decoration: line-through; }
 
+  /* ── FOOTER ──────────────────────────────── */
   footer {
     text-align: center;
     font-family: var(--font-mono);
@@ -488,6 +499,7 @@
     margin-top: 1rem;
   }
 
+  /* ── TOAST ───────────────────────────────── */
   .toast {
     position: fixed;
     bottom: 2rem;
@@ -561,4 +573,30 @@
       </div>
 
       <div class="result-block">
-        <div class="result-block-label">📖 교수님 족집게 해설
+        <div class="result-block-label">📖 교수님 족집게 해설 (Korean)</div>
+        <div class="korean-explanation" id="koreanExplanation"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card guide-card">
+    <div class="guide-title">📚 Quick Rule Reference · Units 57–58</div>
+    <div class="rule-list">
+      <div class="rule-item">
+        <span class="rule-tag">57A ⚠️</span>
+        <div class="rule-text">
+          <strong style="color:#e2e8f0">would rather + bare infinitive</strong> — NO "to".<br>
+          <span class="ok">✓ I'd rather <code>stay</code></span> &nbsp;
+          <span class="bad">✗ I'd rather to stay</span>
+        </div>
+      </div>
+      <div class="rule-item">
+        <span class="rule-tag">57D ⚠️</span>
+        <div class="rule-text">
+          <strong style="color:#e2e8f0">I'd rather somebody <em>do</em> something</strong> — verb must be base form.<br>
+          <span class="ok">✓ I'd rather you <code>drive</code></span> &nbsp;
+          <span class="bad">✗ I'd rather you drove</span>
+        </div>
+      </div>
+      <div class="rule-item">
+        <span class="rule-tag">57B
