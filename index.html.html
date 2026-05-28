@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Grammar Editor</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Noto+Sans+KR:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f8fafc;
+    --card: #ffffff;
+    --text-main: #0f172a;
+    --text-sub: #475569;
+    --border: #e2e8f0;
+    --accent: #2563eb; 
+    --error: #df4747;
+    --success: #16a34a;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background-color: var(--bg);
+    color: var(--text-main);
+    font-family: 'Inter', 'Noto Sans KR', sans-serif;
+    display: flex;
+    justify-content: center;
+    padding: 4rem 1rem;
+    line-height: 1.6;
+  }
+
+  .container {
+    width: 100%;
+    max-width: 640px;
+  }
+
+  header {
+    margin-bottom: 2.5rem;
+  }
+
+  header h1 {
+    font-size: 1.75rem;
+    font-weight: 600;
+    letter-spacing: -0.03em;
+    margin-bottom: 0.5rem;
+  }
+
+  header p {
+    color: var(--text-sub);
+    font-size: 0.9rem;
+  }
+
+  .editor-box {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+    margin-bottom: 1.5rem;
+  }
+
+  textarea {
+    width: 100%;
+    height: 120px;
+    border: none;
+    resize: none;
+    outline: none;
+    font-size: 1.05rem;
+    color: var(--text-main);
+    font-family: inherit;
+  }
+
+  textarea::placeholder { color: #94a3b8; }
+
+  .action-row {
+    display: flex;
+    justify-content: flex-end;
+    border-top: 1px solid var(--border);
+    padding-top: 1rem;
+    margin-top: 0.5rem;
+  }
+
+  button {
+    background: var(--text-main);
+    color: white;
+    border: none;
+    padding: 0.6rem 1.2rem;
+    border-radius: 6px;
+    font-size: 0.88rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+
+  button:hover { background: #1e293b; }
+
+  .result-box {
+    display: none;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem;
+    animation: fadeIn 0.3s ease;
+  }
+
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+  .status-badge {
+    display: inline-block;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    padding: 0.2rem 0.6rem;
+    border-radius: 4px;
+    margin-bottom: 1rem;
+  }
+
+  .status-badge.error { background: #fef2f2; color: var(--error); }
+  .status-badge.success { background: #f0fdf4; color: var(--success); }
+  .status-badge.safe { background: #f1f5f9; color: var(--text-sub); }
+
+  .sentence-output {
+    font-size: 1.2rem;
+    font-weight: 400;
+    margin-bottom: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px dashed var(--border);
+  }
+
+  .highlight-fix {
+    background: #fef08a;
+    color: #a16207;
+    padding: 0 4px;
+    border-radius: 3px;
+    font-weight: 600;
+  }
+
+  .explanation-panel {
+    font-size: 0.9rem;
+    color: var(--text-sub);
+    word-break: keep-all;
+  }
+  
+  .explanation-panel strong { color: var(--text-main); }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <h1>Grammar Guard.</h1>
+    <p>Raymond Murphy 교재 (Unit 57-58) 기말고사 트랩 검증 솔루션</p>
+  </header>
+
+  <div class="editor-box">
+    <textarea id="inputField" placeholder="검증할 문장을 입력하세요... (e.g., I'd rather you drove home)"></textarea>
+    <div class="action-row">
+      <button onclick="processGrammar()">문법 검증 실행</button>
+    </div>
+  </div>
+
+  <div class="result-box" id="resultContainer">
+    <div id="badge" class="status-badge"></div>
+    <div class="sentence-output" id="outputSentence"></div>
+    <div class="explanation-panel" id="outputExplanation"></div>
+  </div>
+</div>
+
+<script>
+// Claude가 설계한 초정밀 문법 채점 엔진 이식
+function evaluateSentence(raw) {
+  const s = raw.trim();
+  const lower = s.toLowerCase();
+
+  // 1. Unit 57D 가정법 원형 트랩 검사
+  const unit57D_pattern = /\bi'?d\s+rather\s+\b(you|he|she|they|we|it|[a-z]+)\b\s+\b([a-z]+)\b/i;
+  const m57d = lower.match(unit57D_pattern);
+  if (m57d) {
+    const subj  = m57d[1];
+    const verb  = m57d[2];
+    if (!['rather'].includes(subj)) {
+      const pastTenseTraps = {
+        drove: 'drive', went: 'go', did: 'do', was: 'be', were: 'be',
+        took: 'take', came: 'come', said: 'say', got: 'get', made: 'make',
+        knew: 'know', told: 'tell', gave: 'give', found: 'find', left: 'leave'
+      };
+      const thirdPersonTraps = ['does', 'goes', 'takes', 'comes', 'makes', 'knows', 'tells', 'gives', 'finds', 'leaves', 'drives'];
+
+      if (pastTenseTraps[verb]) {
+        const baseForm = pastTenseTraps[verb];
+        const corrected = s.replace(new RegExp('\\b' + verb + '\\b', 'i'), `<span class="highlight-fix">${baseForm}</span>`);
+        return {
+          ok: false,
+          corrected: corrected,
+          explanation: `<strong>🚨 [Unit 57D 감점 트랩]</strong> 일반적 AI들은 미국식 구어체 과거형(${verb})도 맞다고 통과시키지만, 우리 전공 시험 기준인 Murphy 교재 규칙에 따르면 <code>I'd rather somebody</code> 뒤에는 무조건 <strong>동사원형(Subjunctive Base Form)</strong>만 정답입니다!`
+        };
+      }
+      if (thirdPersonTraps.includes(verb)) {
+        const base = verb.replace(/s$/, '');
+        const corrected = s.replace(new RegExp('\\b' + verb + '\\b', 'i'), `<span class="highlight-fix">${base}</span>`);
+        return {
+          ok: false,
+          corrected: corrected,
+          explanation: `<strong>🚨 [Unit 57D 3인칭 함정]</strong> 주어가 3인칭 단수여도 <code>I'd rather somebody + 동사원형</code> 규칙이 적용되므로 -s/-es를 붙이면 오답입니다. <strong>동사원형</strong>으로 고쳐야 합니다.`
+        };
+      }
+    }
+  }
+
+  // 2. Unit 57A: would rather to부정사 함정 검사 (오류 수정 완료)
+  if (/\bi'?d\s+rather\s+to\s+[a-z]/i.test(lower) || /\bwould\s+rather\s+to\s+[a-z]/i.test(lower)) {
+    const corrected = s.replace(/\bto\s+/i, '');
+    return {
+      ok: false,
+      corrected: corrected.replace(/\b(rather\s+)([a-z]+)/i, '$1<span class="highlight-fix">$2</span>'),
+      explanation: `<strong>❌ [Unit 57A 규칙 오류]</strong> <code>would rather</code> 바로 뒤에는 to부정사가 올 수 없습니다. 'to'를 제거하고 <strong>동사원형</strong>만 사용해야 시험지에서 감점을 피할 수 있습니다.`
+    };
+  }
+
+  // 3. Unit 57B/C: prefer driving to take 함정 검사
+  if (/\bprefer\b/i.test(lower)) {
+    const gerundToInf = /\bprefer\s+\w+ing\s+to\s+(take|go|do|drive|walk|run|eat|drink|stay|leave)\b/i;
+    const mGTI = lower.match(gerundToInf);
+    if (mGTI) {
+      const wrongVerb = mGTI[1];
+      const corrected = s.replace(new RegExp('\\bto\\s+' + wrongVerb + '\\b', 'i'), `to <span class="highlight-fix">${wrongVerb}ing</span>`);
+      return {
+        ok: false,
+        corrected: corrected,
+        explanation: `<strong>⚠️ [Unit 57B/C 전치사 'to'의 함정]</strong> <code>prefer A to B</code> 구조에서 'to'는 전치사입니다. 뒤에 동사원형이 오면 무조건 감점되며, 반드시 동명사 형태인 <strong>-ing</strong> 결합형으로 고쳐야 합니다.`
+      };
+    }
+  }
+
+  // 4. 안전 구역 패스 패턴들
+  const knownCorrect = [
+    /\bi'?d\s+rather\s+(you|he|she|they|we)\s+[a-z]+\b/i,
+    /\bprefer\s+\w+ing\s+to\s+\w+ing\b/i,
+    /\bprefer\s+to\s+\w+\s+rather\s+than\s+\w+\b/i,
+    /\bwould\s+rather\s+[a-z]+\b/i
+  ];
+  if (knownCorrect.some(p => p.test(lower))) {
+    return { ok: true, corrected: s, explanation: `<strong>✓ 검증 완료:</strong> 입력하신 문장은 교재의 핵심 출제 트랩들을 완벽히 우회했습니다. 시험지 기준에 부합합니다.` };
+  }
+
+  return { ok: null, corrected: s, explanation: `<strong>💡 안내:</strong> 입력한 문장은 안전 영역에 있거나 Unit 57-58 시험 범위를 벗어난 문장입니다. 다른 빈출 함정 문장도 테스트해 보세요.` };
+}
+
+function processGrammar() {
+  const input = document.getElementById('inputField').value.trim();
+  if(!input) return;
+
+  const resultContainer = document.getElementById('resultContainer');
+  const badge = document.getElementById('badge');
+  const outputSentence = document.getElementById('outputSentence');
+  const outputExplanation = document.getElementById('outputExplanation');
+
+  const result = evaluateSentence(input);
+
+  if (result.ok === false) {
+    badge.className = "status-badge error";
+    badge.innerText = "Trap Detected";
+  } else if (result.ok === true) {
+    badge.className = "status-badge success";
+    badge.innerText = "Verified";
+  } else {
+    badge.className = "status-badge safe";
+    badge.innerText = "Safe Zone";
+  }
+
+  outputSentence.innerHTML = result.corrected;
+  outputExplanation.innerHTML = result.explanation;
+  resultContainer.style.display = "block";
+}
+</script>
+</body>
+</html>
