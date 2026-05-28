@@ -1,277 +1,564 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Grammar Editor</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Noto+Sans+KR:wght@300;400;500&display=swap" rel="stylesheet">
+<title>Grammar Guard – Final Exam Prep</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=IBM+Plex+Mono:wght@400;600&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #f8fafc;
-    --card: #ffffff;
-    --text-main: #0f172a;
-    --text-sub: #475569;
-    --border: #e2e8f0;
-    --accent: #2563eb; 
-    --error: #df4747;
-    --success: #16a34a;
+    --navy: #0f172a;
+    --navy-mid: #1e293b;
+    --navy-light: #334155;
+    --slate: #64748b;
+    --slate-light: #94a3b8;
+    --amber: #fef08a;
+    --amber-deep: #f59e0b;
+    --amber-glow: rgba(254,240,138,0.12);
+    --green: #4ade80;
+    --green-glow: rgba(74,222,128,0.15);
+    --red: #fb7185;
+    --red-glow: rgba(251,113,133,0.15);
+    --paper: #fefce8;
+    --paper-line: rgba(100,116,139,0.15);
+    --font-display: 'Playfair Display', serif;
+    --font-mono: 'IBM Plex Mono', monospace;
+    --font-korean: 'Noto Sans KR', sans-serif;
   }
 
-  * { box-sizing: border-box; margin: 0; padding: 0; }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
   body {
-    background-color: var(--bg);
-    color: var(--text-main);
-    font-family: 'Inter', 'Noto Sans KR', sans-serif;
+    background-color: var(--navy);
+    color: #e2e8f0;
+    font-family: var(--font-korean);
+    min-height: 100vh;
     display: flex;
-    justify-content: center;
-    padding: 4rem 1rem;
-    line-height: 1.6;
+    flex-direction: column;
+    align-items: center;
+    padding: 2rem 1rem 4rem;
+    position: relative;
+    overflow-x: hidden;
   }
 
-  .container {
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 60% 50% at 50% -10%, rgba(254,240,138,0.07) 0%, transparent 70%),
+      radial-gradient(ellipse 40% 30% at 80% 100%, rgba(15,23,42,0.9) 0%, transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(100,116,139,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(100,116,139,0.04) 1px, transparent 1px);
+    background-size: 32px 32px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .wrapper {
+    position: relative;
+    z-index: 1;
     width: 100%;
-    max-width: 640px;
+    max-width: 720px;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
   }
 
   header {
-    margin-bottom: 2.5rem;
+    text-align: center;
+    padding: 2.5rem 1rem 1rem;
   }
 
-  header h1 {
-    font-size: 1.75rem;
+  .lamp-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .lamp-icon {
+    font-size: 1.6rem;
+    filter: drop-shadow(0 0 10px var(--amber));
+    animation: lampPulse 3s ease-in-out infinite;
+  }
+
+  @keyframes lampPulse {
+    0%, 100% { filter: drop-shadow(0 0 8px var(--amber)); }
+    50% { filter: drop-shadow(0 0 18px var(--amber)) drop-shadow(0 0 32px rgba(254,240,138,0.4)); }
+  }
+
+  .unit-badge {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
     font-weight: 600;
-    letter-spacing: -0.03em;
-    margin-bottom: 0.5rem;
+    letter-spacing: 0.15em;
+    color: var(--amber);
+    background: rgba(254,240,138,0.1);
+    border: 1px solid rgba(254,240,138,0.3);
+    padding: 0.25rem 0.75rem;
+    border-radius: 999px;
+    text-transform: uppercase;
   }
 
-  header p {
-    color: var(--text-sub);
-    font-size: 0.9rem;
+  h1 {
+    font-family: var(--font-display);
+    font-size: clamp(2.2rem, 6vw, 3.2rem);
+    font-weight: 700;
+    color: #f1f5f9;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
   }
 
-  .editor-box {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 1.5rem;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.02);
-    margin-bottom: 1.5rem;
+  h1 span {
+    color: var(--amber);
+    text-shadow: 0 0 20px rgba(254,240,138,0.5);
+  }
+
+  .subtitle {
+    margin-top: 0.6rem;
+    font-size: 0.85rem;
+    color: var(--slate-light);
+    letter-spacing: 0.03em;
+  }
+
+  .card {
+    background: var(--navy-mid);
+    border: 1px solid rgba(100,116,139,0.2);
+    border-radius: 16px;
+    padding: 1.75rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(254,240,138,0.3), transparent);
+  }
+
+  .input-label {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    color: var(--amber);
+    text-transform: uppercase;
+    margin-bottom: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .input-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, rgba(254,240,138,0.2), transparent);
   }
 
   textarea {
     width: 100%;
-    height: 120px;
-    border: none;
-    resize: none;
+    background: rgba(15,23,42,0.7);
+    border: 1.5px solid rgba(100,116,139,0.25);
+    border-radius: 10px;
+    color: #e2e8f0;
+    font-family: var(--font-korean);
+    font-size: 1rem;
+    line-height: 1.6;
+    padding: 1rem 1.1rem;
+    resize: vertical;
+    min-height: 90px;
     outline: none;
-    font-size: 1.05rem;
-    color: var(--text-main);
-    font-family: inherit;
+    transition: border-color 0.25s, box-shadow 0.25s;
   }
 
-  textarea::placeholder { color: #94a3b8; }
+  textarea::placeholder { color: var(--slate); }
 
-  .action-row {
+  textarea:focus {
+    border-color: rgba(254,240,138,0.5);
+    box-shadow: 0 0 0 3px rgba(254,240,138,0.08), inset 0 0 20px rgba(254,240,138,0.03);
+  }
+
+  .examples {
+    margin-top: 0.75rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+  }
+
+  .example-chip {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--slate-light);
+    background: rgba(100,116,139,0.1);
+    border: 1px solid rgba(100,116,139,0.2);
+    border-radius: 6px;
+    padding: 0.25rem 0.6rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+
+  .example-chip:hover {
+    color: var(--amber);
+    border-color: rgba(254,240,138,0.3);
+    background: rgba(254,240,138,0.07);
+  }
+
+  .btn-row {
+    margin-top: 1rem;
     display: flex;
     justify-content: flex-end;
-    border-top: 1px solid var(--border);
-    padding-top: 1rem;
-    margin-top: 0.5rem;
   }
 
-  button {
-    background: var(--text-main);
-    color: white;
+  button.check-btn {
+    background: var(--amber);
+    color: var(--navy);
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
     border: none;
-    padding: 0.6rem 1.2rem;
-    border-radius: 6px;
-    font-size: 0.88rem;
-    font-weight: 500;
+    border-radius: 10px;
+    padding: 0.75rem 1.75rem;
     cursor: pointer;
-    transition: background 0.2s;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    box-shadow: 0 4px 20px rgba(254,240,138,0.25);
   }
 
-  button:hover { background: #1e293b; }
+  button.check-btn:hover {
+    background: #fde047;
+    box-shadow: 0 4px 28px rgba(254,240,138,0.4);
+    transform: translateY(-1px);
+  }
 
-  .result-box {
+  button.check-btn:active { transform: translateY(0); }
+
+  button.check-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  .scanning {
     display: none;
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 1.5rem;
-    animation: fadeIn 0.3s ease;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    background: rgba(254,240,138,0.06);
+    border: 1px solid rgba(254,240,138,0.15);
+    border-radius: 10px;
+    margin-top: 1rem;
   }
 
-  @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+  .scanning.active { display: flex; }
 
-  .status-badge {
-    display: inline-block;
-    font-size: 0.75rem;
+  .scan-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--amber);
+    animation: scanBlink 0.8s ease-in-out infinite;
+  }
+
+  .scan-dot:nth-child(2) { animation-delay: 0.15s; }
+  .scan-dot:nth-child(3) { animation-delay: 0.3s; }
+
+  @keyframes scanBlink {
+    0%, 100% { opacity: 0.2; transform: scale(0.8); }
+    50% { opacity: 1; transform: scale(1.2); }
+  }
+
+  .scan-text {
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    color: var(--amber);
+    letter-spacing: 0.04em;
+  }
+
+  .result-card {
+    display: none;
+    background: var(--paper);
+    border: 1.5px solid rgba(100,116,139,0.3);
+    color: var(--navy);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .result-card.visible { display: block; animation: slideUp 0.4s cubic-bezier(0.16,1,0.3,1); }
+
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .result-card::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: repeating-linear-gradient(
+      to bottom,
+      transparent 0px,
+      transparent 27px,
+      rgba(100,116,139,0.12) 28px
+    );
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .result-card::before {
+    content: '';
+    position: absolute;
+    top: 0; bottom: 0;
+    left: 3rem;
+    width: 1px;
+    background: rgba(251,113,133,0.25);
+    z-index: 1;
+  }
+
+  .result-inner {
+    position: relative;
+    z-index: 2;
+    padding: 1.75rem 1.75rem 1.75rem 3.5rem;
+  }
+
+  .result-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
     font-weight: 600;
+    letter-spacing: 0.12em;
     text-transform: uppercase;
-    padding: 0.2rem 0.6rem;
-    border-radius: 4px;
-    margin-bottom: 1rem;
+    padding: 0.35rem 0.9rem;
+    border-radius: 999px;
+    margin-bottom: 1.25rem;
   }
 
-  .status-badge.error { background: #fef2f2; color: var(--error); }
-  .status-badge.success { background: #f0fdf4; color: var(--success); }
-  .status-badge.safe { background: #f1f5f9; color: var(--text-sub); }
-
-  .sentence-output {
-    font-size: 1.2rem;
-    font-weight: 400;
-    margin-bottom: 1rem;
-    padding-bottom: 1rem;
-    border-bottom: 1px dashed var(--border);
+  .result-status.success {
+    background: rgba(74,222,128,0.15);
+    color: #16a34a;
+    border: 1.5px solid rgba(74,222,128,0.4);
   }
 
-  .highlight-fix {
-    background: #fef08a;
-    color: #a16207;
-    padding: 0 4px;
-    border-radius: 3px;
+  .result-status.error {
+    background: rgba(251,113,133,0.15);
+    color: #dc2626;
+    border: 1.5px solid rgba(251,113,133,0.4);
+  }
+
+  .result-block {
+    margin-bottom: 1.25rem;
+  }
+
+  .result-block-label {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
     font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--slate);
+    margin-bottom: 0.35rem;
   }
 
-  .explanation-panel {
-    font-size: 0.9rem;
-    color: var(--text-sub);
-    word-break: keep-all;
+  .corrected-sentence {
+    font-family: var(--font-display);
+    font-size: 1.15rem;
+    font-style: italic;
+    color: var(--navy);
+    line-height: 1.5;
+    padding: 0.6rem 0.9rem;
+    background: rgba(15,23,42,0.04);
+    border-left: 3px solid var(--amber-deep);
+    border-radius: 0 6px 6px 0;
   }
-  
-  .explanation-panel strong { color: var(--text-main); }
+
+  .corrected-sentence .highlight {
+    background: rgba(245,158,11,0.2);
+    border-radius: 3px;
+    padding: 0 2px;
+    font-weight: 700;
+    font-style: normal;
+  }
+
+  .korean-explanation {
+    font-family: var(--font-korean);
+    font-size: 0.88rem;
+    line-height: 1.8;
+    color: #334155;
+    padding: 0.75rem 1rem;
+    background: rgba(15,23,42,0.04);
+    border-radius: 8px;
+    border: 1px solid rgba(100,116,139,0.15);
+  }
+
+  .guide-title {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    color: var(--amber);
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .guide-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, rgba(254,240,138,0.2), transparent);
+  }
+
+  .rule-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+
+  .rule-item {
+    display: flex;
+    gap: 0.75rem;
+    align-items: flex-start;
+    padding: 0.7rem 0.9rem;
+    background: rgba(15,23,42,0.4);
+    border-radius: 8px;
+    border: 1px solid rgba(100,116,139,0.12);
+    transition: border-color 0.2s;
+  }
+
+  .rule-item:hover { border-color: rgba(254,240,138,0.2); }
+
+  .rule-tag {
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    font-weight: 600;
+    color: var(--navy);
+    background: var(--amber);
+    padding: 0.15rem 0.45rem;
+    border-radius: 4px;
+    white-space: nowrap;
+    margin-top: 0.1rem;
+    flex-shrink: 0;
+  }
+
+  .rule-text {
+    font-size: 0.82rem;
+    color: var(--slate-light);
+    line-height: 1.6;
+  }
+
+  .rule-text code {
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    background: rgba(100,116,139,0.15);
+    padding: 0.05rem 0.35rem;
+    border-radius: 4px;
+    color: #e2e8f0;
+  }
+
+  .rule-text .ok  { color: var(--green); font-weight: 600; }
+  .rule-text .bad { color: var(--red);   font-weight: 600; text-decoration: line-through; }
+
+  footer {
+    text-align: center;
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    color: var(--slate);
+    letter-spacing: 0.08em;
+    margin-top: 1rem;
+  }
+
+  .toast {
+    position: fixed;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--navy-light);
+    border: 1px solid rgba(100,116,139,0.3);
+    color: #e2e8f0;
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    padding: 0.65rem 1.25rem;
+    border-radius: 999px;
+    opacity: 0;
+    transition: all 0.3s;
+    pointer-events: none;
+    z-index: 100;
+    white-space: nowrap;
+  }
+  .toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
 </style>
 </head>
 <body>
 
-<div class="container">
+<div class="wrapper">
+
   <header>
-    <h1>Grammar Guard.</h1>
-    <p>Raymond Murphy 교재 (Unit 57-58) 기말고사 트랩 검증 솔루션</p>
+    <div class="lamp-row">
+      <span class="lamp-icon">🔆</span>
+      <span class="unit-badge">English Grammar in Use · Units 57–58</span>
+    </div>
+    <h1>Grammar <span>Guard</span></h1>
+    <p class="subtitle">Final Exam Prep · 기말고사 족집게 문법 검사기</p>
   </header>
 
-  <div class="editor-box">
-    <textarea id="inputField" placeholder="검증할 문장을 입력하세요... (e.g., I'd rather you drove home)"></textarea>
-    <div class="action-row">
-      <button onclick="processGrammar()">문법 검증 실행</button>
+  <div class="card input-card">
+    <div class="input-label">📝 Enter Your Sentence</div>
+    <textarea id="inputSentence" placeholder="e.g.  I'd rather you drive home tonight." rows="3"></textarea>
+
+    <div class="examples">
+      <span class="example-chip" onclick="fillExample(this)">I'd rather you drove</span>
+      <span class="example-chip" onclick="fillExample(this)">I'd rather you drive</span>
+      <span class="example-chip" onclick="fillExample(this)">I'd rather to stay</span>
+      <span class="example-chip" onclick="fillExample(this)">prefer driving to taking</span>
+      <span class="example-chip" onclick="fillExample(this)">prefer driving to take</span>
+    </div>
+
+    <div class="scanning" id="scanning">
+      <div class="scan-dot"></div>
+      <div class="scan-dot"></div>
+      <div class="scan-dot"></div>
+      <span class="scan-text">Scanning for exam traps based on Textbook Units 57-58…</span>
+    </div>
+
+    <div class="btn-row">
+      <button class="check-btn" id="checkBtn" onclick="checkGrammar()">
+        <span>⚡</span> Check Grammar
+      </button>
     </div>
   </div>
 
-  <div class="result-box" id="resultContainer">
-    <div id="badge" class="status-badge"></div>
-    <div class="sentence-output" id="outputSentence"></div>
-    <div class="explanation-panel" id="outputExplanation"></div>
-  </div>
-</div>
+  <div class="card result-card" id="resultCard">
+    <div class="result-inner">
+      <div class="result-status" id="resultStatus"></div>
 
-<script>
-// Claude가 설계한 초정밀 문법 채점 엔진 이식
-function evaluateSentence(raw) {
-  const s = raw.trim();
-  const lower = s.toLowerCase();
+      <div class="result-block">
+        <div class="result-block-label">✏️ Corrected Sentence</div>
+        <div class="corrected-sentence" id="correctedSentence"></div>
+      </div>
 
-  // 1. Unit 57D 가정법 원형 트랩 검사
-  const unit57D_pattern = /\bi'?d\s+rather\s+\b(you|he|she|they|we|it|[a-z]+)\b\s+\b([a-z]+)\b/i;
-  const m57d = lower.match(unit57D_pattern);
-  if (m57d) {
-    const subj  = m57d[1];
-    const verb  = m57d[2];
-    if (!['rather'].includes(subj)) {
-      const pastTenseTraps = {
-        drove: 'drive', went: 'go', did: 'do', was: 'be', were: 'be',
-        took: 'take', came: 'come', said: 'say', got: 'get', made: 'make',
-        knew: 'know', told: 'tell', gave: 'give', found: 'find', left: 'leave'
-      };
-      const thirdPersonTraps = ['does', 'goes', 'takes', 'comes', 'makes', 'knows', 'tells', 'gives', 'finds', 'leaves', 'drives'];
-
-      if (pastTenseTraps[verb]) {
-        const baseForm = pastTenseTraps[verb];
-        const corrected = s.replace(new RegExp('\\b' + verb + '\\b', 'i'), `<span class="highlight-fix">${baseForm}</span>`);
-        return {
-          ok: false,
-          corrected: corrected,
-          explanation: `<strong>🚨 [Unit 57D 감점 트랩]</strong> 일반적 AI들은 미국식 구어체 과거형(${verb})도 맞다고 통과시키지만, 우리 전공 시험 기준인 Murphy 교재 규칙에 따르면 <code>I'd rather somebody</code> 뒤에는 무조건 <strong>동사원형(Subjunctive Base Form)</strong>만 정답입니다!`
-        };
-      }
-      if (thirdPersonTraps.includes(verb)) {
-        const base = verb.replace(/s$/, '');
-        const corrected = s.replace(new RegExp('\\b' + verb + '\\b', 'i'), `<span class="highlight-fix">${base}</span>`);
-        return {
-          ok: false,
-          corrected: corrected,
-          explanation: `<strong>🚨 [Unit 57D 3인칭 함정]</strong> 주어가 3인칭 단수여도 <code>I'd rather somebody + 동사원형</code> 규칙이 적용되므로 -s/-es를 붙이면 오답입니다. <strong>동사원형</strong>으로 고쳐야 합니다.`
-        };
-      }
-    }
-  }
-
-  // 2. Unit 57A: would rather to부정사 함정 검사 (오류 수정 완료)
-  if (/\bi'?d\s+rather\s+to\s+[a-z]/i.test(lower) || /\bwould\s+rather\s+to\s+[a-z]/i.test(lower)) {
-    const corrected = s.replace(/\bto\s+/i, '');
-    return {
-      ok: false,
-      corrected: corrected.replace(/\b(rather\s+)([a-z]+)/i, '$1<span class="highlight-fix">$2</span>'),
-      explanation: `<strong>❌ [Unit 57A 규칙 오류]</strong> <code>would rather</code> 바로 뒤에는 to부정사가 올 수 없습니다. 'to'를 제거하고 <strong>동사원형</strong>만 사용해야 시험지에서 감점을 피할 수 있습니다.`
-    };
-  }
-
-  // 3. Unit 57B/C: prefer driving to take 함정 검사
-  if (/\bprefer\b/i.test(lower)) {
-    const gerundToInf = /\bprefer\s+\w+ing\s+to\s+(take|go|do|drive|walk|run|eat|drink|stay|leave)\b/i;
-    const mGTI = lower.match(gerundToInf);
-    if (mGTI) {
-      const wrongVerb = mGTI[1];
-      const corrected = s.replace(new RegExp('\\bto\\s+' + wrongVerb + '\\b', 'i'), `to <span class="highlight-fix">${wrongVerb}ing</span>`);
-      return {
-        ok: false,
-        corrected: corrected,
-        explanation: `<strong>⚠️ [Unit 57B/C 전치사 'to'의 함정]</strong> <code>prefer A to B</code> 구조에서 'to'는 전치사입니다. 뒤에 동사원형이 오면 무조건 감점되며, 반드시 동명사 형태인 <strong>-ing</strong> 결합형으로 고쳐야 합니다.`
-      };
-    }
-  }
-
-  // 4. 안전 구역 패스 패턴들
-  const knownCorrect = [
-    /\bi'?d\s+rather\s+(you|he|she|they|we)\s+[a-z]+\b/i,
-    /\bprefer\s+\w+ing\s+to\s+\w+ing\b/i,
-    /\bprefer\s+to\s+\w+\s+rather\s+than\s+\w+\b/i,
-    /\bwould\s+rather\s+[a-z]+\b/i
-  ];
-  if (knownCorrect.some(p => p.test(lower))) {
-    return { ok: true, corrected: s, explanation: `<strong>✓ 검증 완료:</strong> 입력하신 문장은 교재의 핵심 출제 트랩들을 완벽히 우회했습니다. 시험지 기준에 부합합니다.` };
-  }
-
-  return { ok: null, corrected: s, explanation: `<strong>💡 안내:</strong> 입력한 문장은 안전 영역에 있거나 Unit 57-58 시험 범위를 벗어난 문장입니다. 다른 빈출 함정 문장도 테스트해 보세요.` };
-}
-
-function processGrammar() {
-  const input = document.getElementById('inputField').value.trim();
-  if(!input) return;
-
-  const resultContainer = document.getElementById('resultContainer');
-  const badge = document.getElementById('badge');
-  const outputSentence = document.getElementById('outputSentence');
-  const outputExplanation = document.getElementById('outputExplanation');
-
-  const result = evaluateSentence(input);
-
-  if (result.ok === false) {
-    badge.className = "status-badge error";
-    badge.innerText = "Trap Detected";
-  } else if (result.ok === true) {
-    badge.className = "status-badge success";
-    badge.innerText = "Verified";
-  } else {
-    badge.className = "status-badge safe";
-    badge.innerText = "Safe Zone";
-  }
-
-  outputSentence.innerHTML = result.corrected;
-  outputExplanation.innerHTML = result.explanation;
-  resultContainer.style.display = "block";
-}
-</script>
-</body>
-</html>
+      <div class="result-block">
+        <div class="result-block-label">📖 교수님 족집게 해설
